@@ -1,7 +1,8 @@
+import pandas as pd
 import math
-import pandas
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.preprocessing import PowerTransformer, MinMaxScaler
 
 def std_column_name(df):
     '''function that lower cases and removes redundant words of column names'''
@@ -42,6 +43,40 @@ def joining_nuts(df):
     df_copy['nut_end'] = df_copy['nut_end'].mask(df_copy['nut_end']==0, other = None)
     
     return df_copy, delete_list
+
+def nut_count(df):
+    '''function that counts nut allergies per subject:
+    treenut, walnut, pecan, pistach, almond, brazil, hazelnut, cashew'''
+    
+    nut_list = ['treenut','walnut','pecan','pistach','almond','brazil','hazelnut','cashew']
+    
+    df_copy=df.copy()
+
+    nut_start = [d for d in df_copy.columns if d.split('_')[0] in nut_list and 'start' in d]
+    nut_end = [d for d in df_copy.columns if d.split('_')[0] in nut_list and 'end' in d]
+
+    df_copy['nut_c_s'] = df_copy[nut_start].count(axis=1)
+    df_copy['nut_c_e'] = df_copy[nut_end].count(axis=1)
+    
+    return df_copy
+
+def allergy_count(df):
+    '''function that counts food allergies per subject:
+    shellfish, fish, milk, soy, egg, wheat, peanut, sesame, 
+    treenut, walnut, pecan, pistach, almond, brazil, hazelnut, cashew'''
+    
+    df_copy = df.copy()
+
+    allerg_start = [d for d in df_copy.columns if 'start' in d][1:-4]
+    allerg_end = [d for d in df_copy.columns if 'start' in d][1:-4]
+
+    df_copy['allerg_c_s'] = df_copy[allerg_start].count(axis=1)
+    df_copy['allerg_c_s'] = df_copy[['allerg_c_s','nut_c_s']].sum(axis=1)
+
+    df_copy['allerg_c_e'] = df_copy[allerg_end].count(axis=1)
+    df_copy['allerg_c_e'] = df_copy[['allerg_c_e','nut_c_e']].sum(axis=1)
+    
+    return df_copy
 
 def plot_countplot(df, column_list):
     '''Function to plot countplots for categorical dataframe:
