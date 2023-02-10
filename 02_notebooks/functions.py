@@ -206,3 +206,4 @@ def mmscale_data(df):
     df_sc = pd.DataFrame(df_sc, columns = df_copy.columns)
     
     return df_sc, scaler
+
