@@ -1,8 +1,5 @@
+
 import pandas as pd
-import math
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.preprocessing import PowerTransformer, MinMaxScaler
 
 def std_column_name(df):
     '''function that lower cases and removes redundant words of column names'''
@@ -15,6 +12,20 @@ def std_column_name(df):
         c = c.lower().replace('alg_','')
         new_col.append(c)
     df_copy.columns = new_col
+    return df_copy
+
+def negative_values(df):
+    '''function that replaces negative values by 0 in allergies columns'''
+    
+    df_copy = df.copy()
+    
+    allerg_list = ['shellfish', 'fish', 'milk', 'soy', 'egg', 'wheat', 'peanut', 'sesame', 'treenut',
+              'walnut', 'pecan', 'pistach', 'almond', 'brazil', 'hazelnut', 'cashew', 'atopic', 'allergic']
+    
+    allerg_list = [c for c in df_copy.columns if c.split('_')[0] in allerg_list]
+    
+    df_copy[allerg_list] = df_copy[allerg_list].mask(df_copy[allerg_list]<0, other=0)
+    
     return df_copy
 
 def joining_nuts(df):
@@ -77,6 +88,9 @@ def allergy_count(df):
     df_copy['allerg_c_e'] = df_copy[['allerg_c_e','nut_c_e']].sum(axis=1)
     
     return df_copy
+import math
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def plot_countplot(df, column_list):
     '''Function to plot countplots for categorical dataframe:
@@ -112,3 +126,83 @@ def plot_age_allergy(df,plot_list):
         sns.histplot(a, stat='percent', element='poly', fill=False, ax=ax)
     plt.legend(labels= [c.split('_')[0] for c in plot_list])
     plt.show()
+
+def plot_boxplot(df):
+    '''Function to plot boxplots for dataframe:
+    2 columns, n rows (number of columns of dataframe) '''
+     
+    col_names = list(df)
+    
+    plt_size = math.ceil(len(col_names)/2)  #define rows in subplot
+    n = 0 #counter to attribute position for plot
+    
+    #loop to attribute positions in rows and columns
+    col_num = [] 
+    row_num = []
+    for i1 in [0,1]:
+        for i2 in list(range(0,plt_size)):
+            col_num.append(i1)
+            row_num.append(i2)
+       
+    fig, ax = plt.subplots(plt_size,2, figsize=(10,30))
+    
+    #loop to plot boxplots
+    for i in col_names:
+        sns.boxplot(data = df[i], orient = 'h', color='#a1c9f4', ax = ax[row_num[n],col_num[n]])
+        ax[row_num[n],col_num[n]].set_ylabel(i)
+        n += 1
+                                                        
+    plt.show()
+
+def remove_outliers(df):
+    '''function to remove outliers outside of 3x standard deviation'''
+    
+    df_copy = df.copy()
+    
+    col_names = list(df.columns)
+    std = [] #list to store each row mean
+    mean_m = [] #list to store each column mean
+    
+    #storing mean and std in lists    
+    for i in col_names: 
+        std.append (3*df_copy[i].std())
+        mean_m.append (df_copy[i].mean())
+    
+    #creating dataframe with rows to be excluded. can't do automatically rows to be included as that would excluded Nan
+    for c,s,m in zip(col_names,std,mean_m):
+        df_remove = df_copy[ ( df_copy[c] < m-s ) | ( df_copy[c] > m+s) ]
+    
+    #removing rows to be excluded from dataframe
+    df_copy = df_copy.drop(df_remove.index, axis=0)
+    
+    return df_copy
+
+from sklearn.preprocessing import PowerTransformer
+
+def ptransform_data(df):
+    '''function that operates PowerTransformer in x'''
+
+    df_copy = df.copy().astype('float32')
+    
+    transformer = PowerTransformer()
+    transformer.fit(df_copy)
+    
+    df_tr = transformer.transform(df_copy)
+    df_tr = pd.DataFrame(df_tr, columns = df_copy.columns)
+    
+    return df_tr, transformer
+
+from sklearn.preprocessing import MinMaxScaler
+
+def mmscale_data(df):
+    '''function that operates MinMaxScaler in x'''
+
+    df_copy = df.copy().astype('float32')
+    
+    scaler = MinMaxScaler()
+    scaler.fit(df_copy)
+    
+    df_sc = scaler.transform(df_copy)
+    df_sc = pd.DataFrame(df_sc, columns = df_copy.columns)
+    
+    return df_sc, scaler

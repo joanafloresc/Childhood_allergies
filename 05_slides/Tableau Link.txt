@@ -1,1 +1,1 @@
-httpspublic.tableau.comviewsChildhood_allergiesStorylanguage=en-GB&publish=yes&display_count=n&origin=viz_share_link
+https://public.tableau.com/views/Childhood_allergies/Story?:language=pt-BR&publish=yes&:display_count=n&:origin=viz_share_link
