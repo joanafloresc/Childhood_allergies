@@ -2,6 +2,8 @@
 
 ![Alt text](https://res.cloudinary.com/cognitives-s3/image/upload/c_limit,dpr_auto,f_auto,fl_lossy,q_auto,w_1200/v1/cog-live/n/1271/2021/Oct/25/0318/KiFQ3K0Tq4pxBOY5ZDFZ.jpg)
 
+### Used Tools
+Pandas, Matplotlib, Seaborn, Tableau
 
 ## Sources
 Database:
